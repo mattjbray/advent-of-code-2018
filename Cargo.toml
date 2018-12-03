@@ -4,3 +4,8 @@ version = "0.1.0"
 authors = ["Matt Bray <mattjbray@gmail.com>"]
 
 [dependencies]
+
+
+[lib]
+name = "aoc"
+path = "src/lib.rs"
