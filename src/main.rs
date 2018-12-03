@@ -10,6 +10,7 @@ fn main() {
 
     match day.as_ref() {
         "1" => aoc::day_1::run(&args[2]),
+        "2" => aoc::day_2::run(&args[2]),
         _ => println!("I haven't solved that yet :("),
     }
 }
