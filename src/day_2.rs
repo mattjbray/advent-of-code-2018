@@ -4,6 +4,9 @@ pub fn run(path: &str) {
 
     let csum = part_1::run(&boxes[..]);
     println!("Day 2, part 1: {}", csum);
+
+    let letters = part_2::run(&boxes[..]);
+    println!("Day 2, part 2: {}", letters);
 }
 
 mod part_1 {
@@ -69,4 +72,47 @@ mod part_1 {
         assert_eq!(checksum(&box_counts(&examples)), 12);
     }
 
+}
+
+mod part_2 {
+    pub fn run(boxes: &[&str]) -> String {
+        let (b1, b2) = find_matching_boxes(boxes).expect("No boxes matched");
+        common_letters(b1, b2)
+    }
+
+    fn find_matching_boxes<'a>(boxes: &[&'a str]) -> Option<(&'a str, &'a str)> {
+        for b1 in boxes {
+            for b2 in boxes {
+                let differing_chars: Vec<(char, char)> = b1
+                    .chars()
+                    .zip(b2.chars())
+                    .filter(|(c1, c2)| c1 != c2)
+                    .collect();
+                if differing_chars.len() == 1 {
+                    return Some((b1, b2));
+                }
+            }
+        }
+        None
+    }
+
+    #[test]
+    fn test_find_matching_boxes() {
+        let input = vec![
+            "abcde", "fghij", "klmno", "pqrst", "fguij", "axcye", "wvxyz",
+        ];
+        assert_eq!(find_matching_boxes(&input), Some(("fghij", "fguij")));
+    }
+
+    fn common_letters(b1: &str, b2: &str) -> String {
+        b1.chars()
+            .zip(b2.chars())
+            .filter_map(|(c1, c2)| if c1 == c2 { Some(c1) } else { None })
+            .collect()
+    }
+
+    #[test]
+    fn test_common_letters() {
+        assert_eq!(common_letters("fghij", "fguij"), String::from("fgij"));
+    }
 }
