@@ -33,14 +33,13 @@ use std::collections::HashSet;
 pub fn part_2(frequencies: &Vec<i32>) -> i32 {
     let mut seen_frequencies: HashSet<i32> = HashSet::new();
     let mut current_freq = 0;
-    seen_frequencies.insert(current_freq);
     loop {
         for f in frequencies {
+            seen_frequencies.insert(current_freq);
             current_freq += f;
             if seen_frequencies.contains(&current_freq) {
                 return current_freq;
             }
-            seen_frequencies.insert(current_freq);
         }
     }
 }
