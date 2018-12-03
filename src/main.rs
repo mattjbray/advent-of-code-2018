@@ -1,10 +1,15 @@
 
 fn main() {
-    let freqs = aoc::day_1::parse_input("data/day_1.txt");
+    let args: Vec<String> = std::env::args().collect();
 
-    let day_1_solution = aoc::day_1::part_1(&freqs);
-    println!("Day 1: {}", day_1_solution);
+    if args.len() < 3 {
+        panic!("USAGE: aoc [day] [data_file]")
+    }
 
-    let day_1_part_2_solution = aoc::day_1::part_2(&freqs);
-    println!("Day 1, part 2: {}", day_1_part_2_solution);
+    let day = &args[1];
+
+    match day.as_ref() {
+        "1" => aoc::day_1::run(&args[2]),
+        _ => println!("I haven't solved that yet :("),
+    }
 }

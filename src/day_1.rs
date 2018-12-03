@@ -1,3 +1,13 @@
+pub fn run(path: &str) {
+    let freqs = parse_input(path);
+
+    let part_1_solution = part_1(&freqs);
+    println!("Day 1, part 1: {}", part_1_solution);
+
+    let part_2_solution = part_2(&freqs);
+    println!("Day 1, part 2: {}", part_2_solution);
+}
+
 pub fn parse_input(path: &str) -> Vec<i32> {
     let data = std::fs::read_to_string(path).expect("Couldn't read data file");
 
