@@ -98,7 +98,7 @@ mod part_2 {
 
     #[test]
     fn test_find_matching_boxes() {
-        let input = vec![
+        let input = [
             "abcde", "fghij", "klmno", "pqrst", "fguij", "axcye", "wvxyz",
         ];
         assert_eq!(find_matching_boxes(&input), Some(("fghij", "fguij")));

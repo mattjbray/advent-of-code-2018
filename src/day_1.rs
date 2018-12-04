@@ -16,22 +16,22 @@ pub fn parse_input(path: &str) -> Vec<i32> {
         .collect()
 }
 
-pub fn part_1(frequencies: &Vec<i32>) -> i32 {
+pub fn part_1(frequencies: &[i32]) -> i32 {
     frequencies.iter().sum()
 }
 
 #[test]
 fn day_1_test() {
-    assert_eq!(part_1(&vec![1, -2, 3, 1]), 3);
-    assert_eq!(part_1(&vec![1, 1, 1]), 3);
-    assert_eq!(part_1(&vec![1, 1, -2]), 0);
-    assert_eq!(part_1(&vec![-1, -2, -3]), -6);
+    assert_eq!(part_1(&[1, -2, 3, 1]), 3);
+    assert_eq!(part_1(&[1, 1, 1]), 3);
+    assert_eq!(part_1(&[1, 1, -2]), 0);
+    assert_eq!(part_1(&[-1, -2, -3]), -6);
 }
 
 use std::collections::HashSet;
 
-pub fn part_2(frequencies: &Vec<i32>) -> i32 {
-    let mut seen_frequencies: HashSet<i32> = HashSet::new();
+pub fn part_2(frequencies: &[i32]) -> i32 {
+    let mut seen_frequencies = HashSet::new();
     let mut current_freq = 0;
     loop {
         for f in frequencies {
@@ -46,9 +46,9 @@ pub fn part_2(frequencies: &Vec<i32>) -> i32 {
 
 #[test]
 fn day_1_part_2_test() {
-    assert_eq!(part_2(&vec![1, -2, 3, 1]), 2);
-    assert_eq!(part_2(&vec![1, -1]), 0);
-    assert_eq!(part_2(&vec![3, 3, 4, -2, -4]), 10);
-    assert_eq!(part_2(&vec![-6, 3, 8, 5, -6]), 5);
-    assert_eq!(part_2(&vec![7, 7, -2, -7, -4]), 14);
+    assert_eq!(part_2(&[1, -2, 3, 1]), 2);
+    assert_eq!(part_2(&[1, -1]), 0);
+    assert_eq!(part_2(&[3, 3, 4, -2, -4]), 10);
+    assert_eq!(part_2(&[-6, 3, 8, 5, -6]), 5);
+    assert_eq!(part_2(&[7, 7, -2, -7, -4]), 14);
 }
