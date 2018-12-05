@@ -81,8 +81,8 @@ mod part_2 {
     }
 
     fn find_matching_boxes<'a>(boxes: &[&'a str]) -> Option<(&'a str, &'a str)> {
-        for b1 in boxes {
-            for b2 in boxes {
+        for (i, b1) in boxes.iter().enumerate() {
+            for b2 in &boxes[i + 1..] {
                 let differing_chars: Vec<(char, char)> = b1
                     .chars()
                     .zip(b2.chars())
