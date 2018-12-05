@@ -5,7 +5,8 @@ pub fn run(path: &str) {
     let input = std::fs::read_to_string(path).expect("Couldn't read data file.");
 
     let (_, claims) = parse_claims(&input).expect("Couldn't parse claims");
-    println!("{:?}", claims)
+    let soln = double_claimed_squares(&claimed_square_counts(&claims)).len();
+    println!("Day 3, part 1: {}", soln)
 }
 
 #[derive(Debug, PartialEq)]
