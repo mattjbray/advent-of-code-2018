@@ -5,8 +5,12 @@ pub fn run(path: &str) {
     let input = std::fs::read_to_string(path).expect("Couldn't read data file.");
 
     let (_, claims) = parse_claims(&input).expect("Couldn't parse claims");
+
     let soln = double_claimed_squares(&claimed_square_counts(&claims)).len();
-    println!("Day 3, part 1: {}", soln)
+    println!("Day 3, part 1: {}", soln);
+
+    let part_2_soln = part_2(&claims);
+    println!("Day 3, part 2: {:?}", part_2_soln);
 }
 
 #[derive(Debug, PartialEq)]
@@ -37,7 +41,8 @@ impl Rectangle {
     fn overlaps(&self, other: &Rectangle) -> bool {
         if self.left > other.left + other.width - 1 || other.left > self.left + self.width - 1 {
             return false;
-        } else if self.top > other.top + other.height - 1 || other.top > self.top + self.height - 1 {
+        } else if self.top > other.top + other.height - 1 || other.top > self.top + self.height - 1
+        {
             return false;
         } else {
             return true;
@@ -63,6 +68,22 @@ fn double_claimed_squares(square_counts: &HashMap<Square, u32>) -> HashSet<&Squa
         .iter()
         .filter_map(|(square, count)| if *count > 1 { Some(square) } else { None })
         .collect()
+}
+
+fn part_2(claims: &[Claim]) -> Option<&Claim> {
+    for c1 in claims {
+        let mut overlapped = false;
+        for c2 in claims {
+            if c1 != c2 && c1.rectangle.overlaps(&c2.rectangle) {
+                overlapped = true;
+                break;
+            }
+        }
+        if !overlapped {
+            return Some(c1);
+        }
+    }
+    None
 }
 
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -158,6 +179,12 @@ mod test {
                 .iter()
                 .collect::<HashSet<&Square>>()
         )
+    }
+
+    #[test]
+    fn test_part_2() {
+        let ex = example_claims();
+        assert_eq!(part_2(&ex), Some(&ex[2]));
     }
 
     #[test]
