@@ -33,6 +33,16 @@ impl Rectangle {
         }
         squares
     }
+
+    fn overlaps(&self, other: &Rectangle) -> bool {
+        if self.left > other.left + other.width - 1 || other.left > self.left + self.width - 1 {
+            return false;
+        } else if self.top > other.top + other.height - 1 || other.top > self.top + self.height - 1 {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
 
 fn claimed_square_counts(claims: &[Claim]) -> HashMap<Square, u32> {
@@ -148,6 +158,20 @@ mod test {
                 .iter()
                 .collect::<HashSet<&Square>>()
         )
+    }
+
+    #[test]
+    fn test_overlaps() {
+        let ex = example_claims();
+        assert!(ex[0].rectangle.overlaps(&ex[0].rectangle));
+        assert!(ex[0].rectangle.overlaps(&ex[1].rectangle));
+        assert!(!ex[0].rectangle.overlaps(&ex[2].rectangle));
+        assert!(ex[1].rectangle.overlaps(&ex[0].rectangle));
+        assert!(ex[1].rectangle.overlaps(&ex[1].rectangle));
+        assert!(!ex[1].rectangle.overlaps(&ex[2].rectangle));
+        assert!(!ex[2].rectangle.overlaps(&ex[0].rectangle));
+        assert!(!ex[2].rectangle.overlaps(&ex[1].rectangle));
+        assert!(ex[2].rectangle.overlaps(&ex[2].rectangle));
     }
 
     #[test]
