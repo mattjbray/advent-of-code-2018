@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Matt Bray <mattjbray@gmail.com>"]
 
 [dependencies]
-
+nom = "4.1.1"
 
 [lib]
 name = "aoc"
