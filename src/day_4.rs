@@ -41,23 +41,22 @@ parser!{
     fn timestamp[I]()(I) -> Timestamp
     where [I: Stream<Item = char>]
     {
-        let digits_4 = || from_str(count_min_max::<String, _>(4, 4, digit()));
-        let digits_2 = || from_str(count_min_max::<String, _>(2, 2, digit()));
+        let digits_u16 = |n| from_str(count_min_max::<String, _>(n, n, digit()));
+        let digits_u8 = |n| from_str(count_min_max::<String, _>(n, n, digit()));
 
-        let date =
-            (digits_4(),
-             char('-'),
-             digits_2(),
-             char('-'),
-             digits_2(),
-             char(' '),
-             digits_2(),
-             char(':'),
-             digits_2(),
-            ).map(|t| Timestamp { year : t.0, month: t.2, day: t.4,
-                                  hour: t.6, minute: t.8
-            });
-        date
+        struct_parser!{
+            Timestamp {
+                year: digits_u16(4),
+                _: char('-'),
+                month: digits_u8(2),
+                _: char('-'),
+                day: digits_u8(2),
+                _: char(' '),
+                hour: digits_u8(2),
+                _: char(':'),
+                minute: digits_u8(2),
+            }
+        }
 
     }
 }
@@ -79,10 +78,15 @@ parser!{
     fn event[I]()(I) -> Event
     where [I: Stream<Item = char>]
     {
-        (between(char('['), char(']'), timestamp()),
-         char(' '),
-         event_kind()
-        ).map(|t| Event {ts: t.0, kind: t.2})
+        struct_parser!{
+            Event {
+                _: char('['),
+                ts: timestamp(),
+                _: char(']'),
+                _: char(' '),
+                kind: event_kind(),
+            }
+        }
     }
 }
 
