@@ -1,6 +1,17 @@
-use combine::parser::char::{char, digit, string};
+use combine::parser::char::{char, digit, newline, string};
+use combine::Parser;
 use combine::Stream;
-use combine::{between, choice, count_min_max, from_str, many1};
+use combine::{between, choice, count_min_max, from_str, many1, sep_by};
+
+pub fn run(path: &str) {
+    let input = std::fs::read_to_string(path).expect("Couldn't read data file.");
+
+    let (events, _): (Vec<Event>, _) = sep_by(event(), newline())
+        .easy_parse(&input[..])
+        .expect("Couldn't parse input events");
+
+    println!("{:?}", events);
+}
 
 #[derive(Debug, PartialEq)]
 struct Timestamp {
@@ -13,7 +24,7 @@ struct Timestamp {
 
 #[derive(Debug, PartialEq)]
 enum EventKind {
-    BeginShift(u8),
+    BeginShift(u16),
     FallsAsleep,
     WakesUp,
 }
