@@ -4,7 +4,7 @@ pub fn run(path: &str) {
     let input_chars: Vec<char> = input.chars().collect();
 
     let part_1_solution = react(input_chars);
-    println!("day 5, part 1: {:?}", part_1_solution);
+    println!("day 5, part 1: {:?}", part_1_solution.len());
 }
 
 fn units_react(c1: char, c2: char) -> bool {
@@ -12,19 +12,28 @@ fn units_react(c1: char, c2: char) -> bool {
 }
 
 fn react(mut polymer: Vec<char>) -> String {
-    if polymer.len() < 2 {
-        polymer.into_iter().collect()
-    } else {
-        for j in 1..polymer.len() {
-            let i = j - 1;
-            if units_react(polymer[i], polymer[j]) {
-                // react!
-                polymer.remove(j);
-                polymer.remove(i);
-                return react(polymer);
+    let mut scan_from: usize = 0;
+    loop {
+        if polymer.len() < 2 {
+            return polymer.into_iter().collect();
+        } else {
+            let mut reacted = false;
+            for i in scan_from..polymer.len() - 1 {
+                let j = i + 1;
+                if units_react(polymer[i], polymer[j]) {
+                    // react!
+                    polymer.remove(j);
+                    polymer.remove(i);
+                    // We only need to go back one unit when we start the loop again.
+                    scan_from = i.checked_sub(1).unwrap_or(0);
+                    reacted = true;
+                    break;
+                }
+            }
+            if !reacted {
+                return polymer.into_iter().collect();
             }
         }
-        polymer.into_iter().collect()
     }
 }
 
