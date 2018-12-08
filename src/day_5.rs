@@ -1,9 +1,7 @@
 pub fn run(path: &str) {
     let input = std::fs::read_to_string(path).expect("Couldn't read data file.");
 
-    let input_chars: Vec<char> = input.chars().collect();
-
-    let part_1_solution = react(input_chars);
+    let part_1_solution = react(&input);
     println!("day 5, part 1: {:?}", part_1_solution.len());
 }
 
@@ -11,7 +9,8 @@ fn units_react(c1: char, c2: char) -> bool {
     c1.to_ascii_lowercase() == c2.to_ascii_lowercase() && c1 != c2
 }
 
-fn react(mut polymer: Vec<char>) -> String {
+fn react(polymer: &str) -> String {
+    let mut polymer: Vec<char> = polymer.to_string().chars().collect();
     let mut scan_from: usize = 0;
     loop {
         if polymer.len() < 2 {
@@ -44,19 +43,10 @@ mod test {
 
     #[test]
     fn test_react() {
-        assert_eq!(react("aA".to_string().chars().collect()), "".to_string());
-        assert_eq!(react("abBA".to_string().chars().collect()), "".to_string());
-        assert_eq!(
-            react("abAB".to_string().chars().collect()),
-            "abAB".to_string()
-        );
-        assert_eq!(
-            react("aabAAB".to_string().chars().collect()),
-            "aabAAB".to_string()
-        );
-        assert_eq!(
-            react("dabAcCaCBAcCcaDA".to_string().chars().collect()),
-            "dabCBAcaDA".to_string()
-        );
+        assert_eq!(react("aA"), "".to_string());
+        assert_eq!(react("abBA"), "".to_string());
+        assert_eq!(react("abAB"), "abAB".to_string());
+        assert_eq!(react("aabAAB"), "aabAAB".to_string());
+        assert_eq!(react("dabAcCaCBAcCcaDA"), "dabCBAcaDA".to_string());
     }
 }
