@@ -16,6 +16,12 @@ pub fn run(path: &str) {
 
     let part_1_solution = part_1(&events);
     println!("day 4, part 1: {:?}", part_1_solution);
+
+    let part_2_solution = part_2(&events);
+    println!(
+        "day 4, part 2: {:?}",
+        part_2_solution.map(|(guard_id, minute)| guard_id * (minute as u16))
+    );
 }
 
 type Minute = u8;
@@ -88,20 +94,20 @@ fn total_minutes_asleep(
     map
 }
 
-fn max_value<K, V>(m: &HashMap<K, V>) -> Option<K>
+fn max_entry<K, V>(m: &HashMap<K, V>) -> Option<(K, V)>
 where
     K: Eq + std::hash::Hash + Copy,
-    V: Ord,
+    V: Ord + Copy,
 {
     m.iter()
         .max_by(|(_, v1), (_, v2)| v1.cmp(v2))
-        .map(|(minute, _count)| minute.clone())
+        .map(|(&k, &v)| (k, v))
 }
 
 fn most_sleepy_guard(
     minute_counts_by_guard: &HashMap<GuardID, HashMap<Minute, u32>>,
 ) -> Option<GuardID> {
-    max_value(&total_minutes_asleep(minute_counts_by_guard))
+    max_entry(&total_minutes_asleep(minute_counts_by_guard)).map(|t| t.0)
 }
 
 fn part_1(events: &[Event]) -> Option<u16> {
@@ -109,9 +115,20 @@ fn part_1(events: &[Event]) -> Option<u16> {
     let sleepiest_guard = most_sleepy_guard(&m);
     sleepiest_guard.and_then(|id| {
         m.get(&id)
-            .and_then(|minute_counts| max_value(&minute_counts))
-            .map(|minute| id * (minute as u16))
+            .and_then(|minute_counts| max_entry(&minute_counts))
+            .map(|(minute, _)| id * (minute as u16))
     })
+}
+
+fn part_2(events: &[Event]) -> Option<(GuardID, Minute)> {
+    let m = minutes_asleep(events);
+    let max_count_by_guard_minute: HashMap<(GuardID, Minute), u32> = m
+        .iter()
+        .filter_map(|(&guard_id, minute_counts)| {
+            let max_minute_count = max_entry(&minute_counts);
+            max_minute_count.map(|(minute, count)| ((guard_id, minute), count))
+        }).collect();
+    max_entry(&max_count_by_guard_minute).map(|t| t.0)
 }
 
 // [1518-11-01 00:00] Guard #10 begins shift
@@ -252,8 +269,7 @@ mod test {
         assert_eq!(minutes_asleep(&events), expected);
     }
 
-    #[test]
-    fn test_part_1() {
+    fn example_events() -> Vec<Event> {
         let records = vec![
             "[1518-11-01 00:00] Guard #10 begins shift",
             "[1518-11-01 00:05] falls asleep",
@@ -277,7 +293,12 @@ mod test {
         let (events, _): (Vec<Event>, _) = sep_by(event(), newline())
             .easy_parse(&records[..])
             .expect("Couldn't parse input events");
+        events
+    }
 
+    #[test]
+    fn test_part_1() {
+        let events = example_events();
         let minutes_asleep_counts = minutes_asleep(&events);
 
         assert_eq!(
@@ -288,10 +309,17 @@ mod test {
         assert_eq!(
             minutes_asleep_counts
                 .get(&10)
-                .and_then(|minute_counts| max_value(&minute_counts)),
-            Some(24)
+                .and_then(|minute_counts| max_entry(&minute_counts)),
+            Some((24, 2))
         );
 
         assert_eq!(part_1(&events), Some(240))
+    }
+
+    #[test]
+    fn test_part_2() {
+        let events = example_events();
+
+        assert_eq!(part_2(&events), Some((99, 45)))
     }
 }
