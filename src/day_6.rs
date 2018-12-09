@@ -1,17 +1,16 @@
+use combine::Parser;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use combine::Parser;
 
 pub fn run(path: &str) {
     let input = std::fs::read_to_string(path).expect("Couldn't read data file");
 
-    let (coords, _): (Vec<_>,_) = combine::sep_by(point(), combine::parser::char::newline())
+    let (coords, _): (Vec<_>, _) = combine::sep_by(point(), combine::parser::char::newline())
         .easy_parse(&input[..])
         .expect("Couldn't parse input coords");
 
     let part_1_solution = part_1(&coords);
     println!("Day 6, part 1: {}", part_1_solution.unwrap());
-
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
@@ -102,21 +101,23 @@ fn part_1(coords: &[Point]) -> Option<usize> {
     })
 }
 
-parser!{
-    fn point[I]()(I) -> Point
-    where [I: combine::Stream<Item = char> + combine::RangeStreamOnce,
-           I::Range: combine::stream::Range + combine::combinator::StrLike]
-    {
-        let digits_u32 = || combine::from_str(
-            combine::parser::range::take_while1::<I,_>(|c:char| c.is_digit(10))
-        );
+fn point<I>() -> impl Parser<Input = I, Output = Point>
+where
+    I: combine::Stream<Item = char> + combine::RangeStreamOnce,
+    I::Range: combine::stream::Range + combine::combinator::StrLike,
+    I::Error: combine::ParseError<I::Item, I::Range, I::Position>,
+{
+    let digits_u32 = || {
+        combine::from_str(combine::parser::range::take_while1(|c: char| {
+            c.is_digit(10)
+        }))
+    };
 
-        struct_parser!{
-            Point {
-                x: digits_u32(),
-                _: combine::char::string(", "),
-                y: digits_u32()
-            }
+    struct_parser!{
+        Point {
+            x: digits_u32(),
+            _: combine::char::string(", "),
+            y: digits_u32()
         }
     }
 }
@@ -152,10 +153,7 @@ mod test {
     }
 
     fn test_point_parser() {
-        assert_eq!(
-            point().easy_parse("1, 2"),
-            Ok((Point { x: 1, y: 2}, ""))
-        );
+        assert_eq!(point().easy_parse("1, 2"), Ok((Point { x: 1, y: 2 }, "")));
     }
 
 }
