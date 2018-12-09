@@ -11,6 +11,9 @@ pub fn run(path: &str) {
 
     let part_1_solution = part_1(&coords);
     println!("Day 6, part 1: {}", part_1_solution.unwrap());
+
+    let part_2_solution = part_2(&coords);
+    println!("Day 6, part 2: {}", part_2_solution.unwrap());
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
@@ -101,6 +104,30 @@ fn part_1(coords: &[Point]) -> Option<usize> {
     })
 }
 
+fn safe_area(coords: &[Point], max_point: &Point, safe_distance: u32) -> HashSet<Point> {
+    let mut area = HashSet::new();
+
+    for x in 0..max_point.x + 1 {
+        for y in 0..max_point.y + 1 {
+            let p = Point { x, y };
+            let total_dist = coords
+                .iter()
+                .fold(0, |sum, coord| sum + manhattan_dist(&p, coord));
+            if total_dist < safe_distance {
+                area.insert(p);
+            }
+        }
+    }
+
+    area
+}
+
+fn part_2(coords: &[Point]) -> Option<usize> {
+    max_point(&coords).map(|max_point| {
+        safe_area(&coords, &max_point, 10000).len()
+    })
+}
+
 fn point<I>() -> impl Parser<Input = I, Output = Point>
 where
     I: combine::Stream<Item = char> + combine::RangeStreamOnce,
@@ -126,16 +153,20 @@ where
 mod test {
     use super::*;
 
-    #[test]
-    fn test_calc_areas() {
-        let coords = vec![
+    fn get_example_coords() -> Vec<Point> {
+        vec![
             Point { x: 1, y: 1 },
             Point { x: 1, y: 6 },
             Point { x: 8, y: 3 },
             Point { x: 3, y: 4 },
             Point { x: 5, y: 5 },
             Point { x: 8, y: 9 },
-        ];
+        ]
+    }
+
+    #[test]
+    fn test_calc_areas() {
+        let coords = get_example_coords();
         let max_point = max_point(&coords).unwrap();
 
         let areas = calc_areas(&coords, &max_point);
@@ -152,8 +183,17 @@ mod test {
         assert_eq!(part_1(&coords), Some(17));
     }
 
+    #[test]
     fn test_point_parser() {
         assert_eq!(point().easy_parse("1, 2"), Ok((Point { x: 1, y: 2 }, "")));
+    }
+
+    #[test]
+    fn test_safe_area() {
+        let coords = get_example_coords();
+        let max_point = max_point(&coords).unwrap();
+
+        assert_eq!(safe_area(&coords, &max_point, 32).len(), 16);
     }
 
 }
