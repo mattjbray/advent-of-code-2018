@@ -15,30 +15,29 @@ fn units_react(c1: char, c2: char) -> bool {
 }
 
 fn react(polymer: &str) -> String {
-    let mut polymer: Vec<char> = polymer.to_string().chars().collect();
-    let mut scan_from: usize = 0;
-    loop {
-        if polymer.len() < 2 {
-            return polymer.into_iter().collect();
-        } else {
-            let mut reacted = false;
-            for i in scan_from..polymer.len() - 1 {
-                let j = i + 1;
-                if units_react(polymer[i], polymer[j]) {
-                    // react!
-                    polymer.remove(j);
-                    polymer.remove(i);
-                    // We only need to go back one unit when we start the loop again.
-                    scan_from = i.checked_sub(1).unwrap_or(0);
-                    reacted = true;
-                    break;
+    let mut out = String::new();
+    let mut last_c = None;
+
+    for c2 in polymer.chars() {
+        match last_c {
+            None => last_c = Some(c2),
+            Some(c1) => {
+                if units_react(c1, c2) {
+                    // Discard c1 and c2, and go back one char
+                    last_c = out.pop();
+                } else {
+                    out.push(c1);
+                    last_c = Some(c2);
                 }
-            }
-            if !reacted {
-                return polymer.into_iter().collect();
             }
         }
     }
+
+    if let Some(c1) = last_c {
+        out.push(c1);
+    }
+
+    out
 }
 
 fn part_2(polymer: &str) -> Option<(char, usize)> {
