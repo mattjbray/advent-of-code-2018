@@ -34,9 +34,6 @@ fn calc_areas(coords: &[Point], max_point: &Point) -> HashMap<Point, HashSet<Poi
     for x in 0..max_point.x + 1 {
         for y in 0..max_point.y + 1 {
             let p = Point { x, y };
-            if coords.contains(&p) {
-                continue;
-            }
             let closest_coords = closest_coords(&coords, &p);
             if closest_coords.len() != 1 {
                 continue;
@@ -71,6 +68,27 @@ fn filter_finite(
         }).collect()
 }
 
+fn largest_area(areas: HashMap<Point, HashSet<Point>>) -> Option<(Point, usize)> {
+    areas
+        .iter()
+        .map(|(coord, area)| (*coord, area.len()))
+        .max_by(|(_, size1), (_, size2)| size1.cmp(&size2))
+}
+
+fn max_point(coords: &[Point]) -> Option<Point> {
+    let max_x = coords.iter().max_by(|p1, p2| p1.x.cmp(&p2.x)).map(|p| p.x);
+    let max_y = coords.iter().max_by(|p1, p2| p1.y.cmp(&p2.y)).map(|p| p.y);
+    max_x.and_then(|x| max_y.map(|y| Point { x, y }))
+}
+
+fn part_1(coords: &[Point]) -> Option<usize> {
+    max_point(&coords).and_then(|max_point| {
+        let areas = calc_areas(&coords, &max_point);
+        let finite_areas = filter_finite(areas, &max_point);
+        largest_area(finite_areas).map(|(_point, size)| size)
+    })
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -85,18 +103,7 @@ mod test {
             Point { x: 5, y: 5 },
             Point { x: 8, y: 9 },
         ];
-
-        let max_x = coords
-            .iter()
-            .max_by(|p1, p2| p1.x.cmp(&p2.x))
-            .map(|p| p.x)
-            .unwrap();
-        let max_y = coords
-            .iter()
-            .max_by(|p1, p2| p1.y.cmp(&p2.y))
-            .map(|p| p.y)
-            .unwrap();
-        let max_point = Point { x: max_x, y: max_y };
+        let max_point = max_point(&coords).unwrap();
 
         let areas = calc_areas(&coords, &max_point);
 
@@ -106,6 +113,10 @@ mod test {
             finite_areas.keys().collect::<HashSet<&Point>>(),
             vec![coords[3], coords[4]].iter().collect()
         );
+
+        assert_eq!(largest_area(finite_areas), Some((coords[4], 17)));
+
+        assert_eq!(part_1(&coords), Some(17));
     }
 
 }
