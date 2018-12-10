@@ -11,6 +11,11 @@ pub fn run(path: &str) {
     let step_order: String = step_order(&mut step_deps).into_iter().collect();
 
     println!("Day 7, part 1: {}", step_order);
+
+    let mut step_deps = build_step_deps(&steps);
+
+    let part_2_solution = duration(&mut step_deps, 5, 60);
+    println!("Day 7, part 2: {}", part_2_solution);
 }
 
 type Step = char;
@@ -35,7 +40,7 @@ fn build_step_deps(step_lines: &[(Step, Step)]) -> StepDeps {
         })
 }
 
-fn get_available_steps(step_deps: &mut StepDeps) -> Vec<Step> {
+fn get_available_steps(step_deps: &StepDeps) -> Vec<Step> {
     step_deps
         .iter()
         .filter_map(
@@ -68,6 +73,48 @@ fn step_order(step_deps: &mut StepDeps) -> Vec<Step> {
     }
 
     done_steps
+}
+
+fn step_cost(step: Step, base: u32) -> u32 {
+    step as u32 - 64 + base
+}
+
+#[derive(Debug)]
+struct Task {
+    step: Step,
+    started_at: u32,
+}
+
+fn duration(step_deps: &mut StepDeps, workers: usize, base_cost: u32) -> u32 {
+    let mut tasks: Vec<Task> = vec![];
+
+    for now in 0.. {
+        let (done_tasks, mut tasks_still_running): (Vec<Task>, Vec<Task>) = tasks
+            .into_iter()
+            .partition(|task| now - task.started_at >= step_cost(task.step, base_cost));
+
+        for t in done_tasks.iter() {
+            do_step(t.step, step_deps);
+        }
+
+        let available_workers = workers - tasks_still_running.len();
+        let new_tasks: Vec<Task> = get_available_steps(step_deps)
+            .iter()
+            .filter(|&step| !tasks_still_running.iter().any(|task| task.step == *step))
+            .take(available_workers)
+            .map(|&step| Task {
+                step,
+                started_at: now,
+            }).collect();
+
+        tasks_still_running.extend(new_tasks);
+        tasks = tasks_still_running;
+        if tasks.len() == 0 {
+            return now;
+        }
+    }
+
+    0
 }
 
 mod parser {
@@ -115,9 +162,9 @@ mod test {
 
     #[test]
     fn test_get_available_steps() {
-        let mut step_deps: StepDeps = get_example_step_deps();
+        let step_deps: StepDeps = get_example_step_deps();
 
-        assert_eq!(get_available_steps(&mut step_deps), vec!['C']);
+        assert_eq!(get_available_steps(&step_deps), vec!['C']);
     }
 
     #[test]
@@ -138,5 +185,19 @@ mod test {
             step_order(&mut step_deps),
             vec!['C', 'A', 'B', 'D', 'F', 'E']
         );
+    }
+
+    #[test]
+    fn test_step_cost() {
+        assert_eq!(step_cost('A', 0), 1);
+        assert_eq!(step_cost('A', 60), 61);
+        assert_eq!(step_cost('Z', 60), 86);
+    }
+
+    #[test]
+    fn test_duration() {
+        let mut step_deps: StepDeps = get_example_step_deps();
+
+        assert_eq!(duration(&mut step_deps, 2, 0), 15);
     }
 }
