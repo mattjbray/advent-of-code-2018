@@ -8,8 +8,9 @@ pub fn run(path: &str) {
         .expect("Couldn't parse nodes")
         .0;
 
-    let part_1_solution = node.sum_metadatas();
-    println!("Day 8, part 1: {}", part_1_solution);
+    println!("Day 8, part 1: {}", node.sum_metadatas());
+
+    println!("Day 8, part 2: {}", node.value());
 }
 
 #[derive(Debug, PartialEq)]
@@ -22,6 +23,21 @@ impl Node {
     fn sum_metadatas(&self) -> u32 {
         let child_sum: u32 = self.children.iter().map(|n| n.sum_metadatas()).sum();
         self.metadata.iter().sum::<u32>() + child_sum
+    }
+
+    fn value(&self) -> u32 {
+        if self.children.len() == 0 {
+            self.sum_metadatas()
+        } else {
+            self.metadata
+                .iter()
+                .map(|&i| {
+                    self.children
+                        .get((i as usize) - 1)
+                        .map(|n| n.value())
+                        .unwrap_or(0)
+                }).sum()
+        }
     }
 }
 
@@ -73,20 +89,41 @@ mod test {
         }
     }
 
+    fn node_b() -> Node {
+        Node {
+            children: vec![],
+            metadata: vec![10, 11, 12],
+        }
+    }
+
+    fn node_a() -> Node {
+        Node {
+            children: vec![node_b(), node_c()],
+            metadata: vec![1, 1, 2],
+        }
+    }
+
     #[test]
     fn test_parse_node() {
         assert_eq!(parse_node().easy_parse("0 1 99"), Ok((node_d(), "")));
 
         assert_eq!(parse_node().easy_parse("1 1 0 1 99 2"), Ok((node_c(), "")));
+
+        assert_eq!(
+            parse_node().easy_parse("2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2"),
+            Ok((node_a(), ""))
+        );
     }
 
     #[test]
     fn test_sum_metadatas() {
-        let node = parse_node()
-            .easy_parse("2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2")
-            .expect("Failed to parse example")
-            .0;
+        assert_eq!(node_a().sum_metadatas(), 138);
+    }
 
-        assert_eq!(node.sum_metadatas(), 138);
+    #[test]
+    fn test_value() {
+        assert_eq!(node_c().value(), 0);
+        assert_eq!(node_b().value(), 33);
+        assert_eq!(node_a().value(), 66);
     }
 }
