@@ -2,7 +2,7 @@
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
-    if args.len() < 3 {
+    if args.len() < 2 {
         panic!("USAGE: aoc [day] [data_file]")
     }
 
@@ -17,6 +17,7 @@ fn main() {
         "6" => aoc::day_6::run(&args[2]),
         "7" => aoc::day_7::run(&args[2]),
         "8" => aoc::day_8::run(&args[2]),
+        "9" => aoc::day_9::run(),
         _ => println!("I haven't solved that yet :("),
     }
 }

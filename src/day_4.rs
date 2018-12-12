@@ -94,7 +94,7 @@ fn total_minutes_asleep(
     map
 }
 
-fn max_entry<K, V>(m: &HashMap<K, V>) -> Option<(K, V)>
+pub fn max_entry<K, V>(m: &HashMap<K, V>) -> Option<(K, V)>
 where
     K: Eq + std::hash::Hash + Copy,
     V: Ord + Copy,
