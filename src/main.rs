@@ -18,6 +18,7 @@ fn main() {
         "7" => aoc::day_7::run(&args[2]),
         "8" => aoc::day_8::run(&args[2]),
         "9" => aoc::day_9::run(),
+        "10" => aoc::day_10::run(&args[2]),
         _ => println!("I haven't solved that yet :("),
     }
 }
